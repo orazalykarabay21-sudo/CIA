@@ -1,0 +1,1355 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CID // SECRET DATABASE</title>
+
+<style>
+:root{
+    --bg:#07100b;
+    --panel:#0d1711;
+    --panel2:#111e15;
+    --line:#26382b;
+    --text:#e8eee9;
+    --muted:#829186;
+    --green:#62d889;
+    --red:#ef6969;
+    --yellow:#dfbd58;
+    --blue:#6ba7df;
+}
+
+*{box-sizing:border-box}
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,Segoe UI,sans-serif;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+
+header{
+    height:64px;
+    position:sticky;
+    top:0;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 5%;
+    background:#08100bdd;
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+}
+
+.logo{
+    font-weight:bold;
+    letter-spacing:2px;
+}
+.logo span{color:var(--green)}
+
+header button{
+    background:#102017;
+    color:var(--green);
+    border:1px solid #31533a;
+    padding:9px 14px;
+    border-radius:6px;
+}
+
+.hero{
+    max-width:1200px;
+    margin:auto;
+    padding:60px 5% 35px;
+}
+
+.label{
+    color:var(--green);
+    font-size:11px;
+    letter-spacing:3px;
+    font-weight:bold;
+}
+
+h1{
+    font-size:clamp(38px,6vw,68px);
+    line-height:.95;
+    margin:12px 0;
+}
+
+.hero p{
+    max-width:650px;
+    color:var(--muted);
+    line-height:1.6;
+}
+
+.stats{
+    max-width:1200px;
+    margin:auto;
+    padding:0 5% 30px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+}
+
+.stat{
+    padding:17px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+}
+.stat b{
+    display:block;
+    font-size:23px;
+}
+.stat small{color:var(--muted)}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:0 5% 70px;
+}
+
+.section-title{
+    margin:35px 0 15px;
+}
+.section-title h2{margin:5px 0}
+
+.controls{
+    display:flex;
+    gap:8px;
+    margin-bottom:15px;
+}
+
+input,select{
+    background:var(--panel);
+    color:white;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:12px;
+    outline:none;
+}
+
+input{flex:1}
+
+.cases{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+
+.case{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:15px;
+}
+
+.case:hover{
+    border-color:#3b6046;
+}
+
+.case-head{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:13px;
+}
+
+.case-id{
+    color:var(--muted);
+    font-family:monospace;
+    font-size:12px;
+}
+
+.status{
+    font-size:9px;
+    padding:5px 7px;
+    border-radius:4px;
+    font-weight:bold;
+}
+.OPEN{color:#ff7979;background:#321717}
+.CLOSED{color:var(--green);background:#12271a}
+.CLASSIFIED{color:var(--yellow);background:#302914}
+
+.case h3{margin:5px 0}
+.case .code{
+    color:var(--green);
+    font-size:11px;
+    font-family:monospace;
+}
+
+.case-data{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+    margin:14px 0;
+}
+
+.data{
+    background:#09120d;
+    border:1px solid #1c2b20;
+    padding:8px;
+    border-radius:5px;
+}
+.data small{
+    display:block;
+    color:#68776d;
+    font-size:9px;
+}
+.data b{font-size:11px}
+
+.open-btn{
+    width:100%;
+    padding:10px;
+    background:#14261a;
+    color:var(--green);
+    border:1px solid #315239;
+    border-radius:5px;
+}
+
+.empty{
+    display:none;
+    padding:40px;
+    text-align:center;
+    color:var(--muted);
+}
+
+
+/* MODALS */
+
+.modal{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:15px;
+    background:#000b;
+    backdrop-filter:blur(7px);
+}
+
+.modal.show{display:flex}
+
+.window{
+    width:min(950px,100%);
+    max-height:90vh;
+    overflow:auto;
+    background:#0a130d;
+    border:1px solid #38533e;
+    border-radius:9px;
+    box-shadow:0 30px 100px #000;
+}
+
+.window-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:17px;
+    border-bottom:1px solid var(--line);
+}
+
+.close{
+    background:none;
+    color:#758278;
+    border:0;
+    font-size:24px;
+}
+
+.window-body{padding:20px}
+
+.subject{
+    display:grid;
+    grid-template-columns:100px 1fr;
+    gap:17px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--line);
+}
+
+.subject img{
+    width:100px;
+    height:120px;
+    object-fit:cover;
+    filter:grayscale(1);
+    border-radius:6px;
+}
+
+.subject h2{margin:3px 0}
+.subject p{
+    color:var(--muted);
+    line-height:1.6;
+}
+
+.tabs{
+    display:flex;
+    gap:5px;
+    border-bottom:1px solid var(--line);
+    margin:18px 0;
+    overflow:auto;
+}
+
+.tab{
+    white-space:nowrap;
+    background:none;
+    color:var(--muted);
+    border:0;
+    padding:10px 12px;
+}
+
+.tab.active{
+    color:var(--green);
+    border-bottom:2px solid var(--green);
+}
+
+.tab-page{display:none}
+.tab-page.active{display:block}
+
+.analytics{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+
+.metric{
+    background:#09120d;
+    border:1px solid #1c2b20;
+    padding:15px;
+    border-radius:6px;
+}
+
+.metric small{
+    color:var(--muted);
+}
+.metric b{
+    display:block;
+    margin-top:7px;
+    font-size:20px;
+}
+
+.bar{
+    height:6px;
+    background:#18271c;
+    margin-top:10px;
+    border-radius:5px;
+}
+.bar i{
+    display:block;
+    height:100%;
+    background:var(--green);
+}
+
+.list{
+    display:grid;
+    gap:7px;
+}
+
+.list-item{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    padding:12px;
+    background:#09120d;
+    border:1px solid #1b2a20;
+    border-radius:5px;
+}
+
+.list-item span{color:#a8b3aa}
+.list-item b{
+    color:var(--green);
+    font-size:10px;
+}
+
+.timeline{
+    border-left:1px solid #3b5943;
+    padding-left:20px;
+}
+
+.event{
+    margin-bottom:20px;
+    position:relative;
+}
+.event:before{
+    content:"";
+    position:absolute;
+    left:-25px;
+    top:3px;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--green);
+}
+.event time{
+    color:var(--green);
+    font-family:monospace;
+    font-size:11px;
+}
+
+
+/* SECRET */
+
+.secret-panel{
+    margin-top:50px;
+    border:1px dashed #455849;
+    padding:25px;
+    border-radius:8px;
+    text-align:center;
+}
+
+.secret-panel p{
+    color:var(--muted);
+}
+
+.secret-btn{
+    background:#13251a;
+    border:1px solid #3a5c42;
+    color:var(--green);
+    padding:11px 18px;
+    border-radius:5px;
+}
+
+
+/* SECRET ARCHIVE */
+
+.archive{
+    width:min(1100px,100%);
+    max-height:92vh;
+    overflow:auto;
+    background:#080f0a;
+    border:1px solid #405945;
+    border-radius:8px;
+}
+
+.archive-head{
+    padding:18px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+}
+
+.archive-body{
+    padding:18px;
+}
+
+.archive-warning{
+    padding:12px;
+    background:#251f0d;
+    color:var(--yellow);
+    border:1px solid #4a4123;
+    font-family:monospace;
+    font-size:11px;
+    margin-bottom:15px;
+}
+
+.folder-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:9px;
+}
+
+.folder{
+    background:#101b13;
+    border:1px solid var(--line);
+    padding:16px;
+    border-radius:6px;
+    text-align:left;
+    color:white;
+}
+
+.folder:hover{
+    border-color:var(--green);
+}
+
+.folder-icon{
+    font-size:28px;
+    margin-bottom:9px;
+}
+
+.folder small{
+    color:var(--muted);
+    display:block;
+    margin-top:5px;
+}
+
+.archive-view{
+    display:none;
+    margin-top:15px;
+    border-top:1px solid var(--line);
+    padding-top:15px;
+}
+
+.archive-view.show{display:block}
+
+.docs{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+}
+
+.doc{
+    padding:13px;
+    background:#0d1710;
+    border:1px solid var(--line);
+    border-radius:5px;
+    text-align:left;
+}
+
+.doc button{
+    margin-top:8px;
+    background:none;
+    border:0;
+    color:var(--green);
+    padding:0;
+}
+
+.document-view{
+    display:none;
+    margin-top:15px;
+    background:#050a06;
+    border:1px solid #253829;
+    padding:20px;
+    line-height:1.7;
+}
+
+.document-view.show{display:block}
+
+.document-view h3{
+    color:var(--green);
+}
+
+.redacted{
+    background:#000;
+    color:#000;
+    padding:0 5px;
+}
+
+.access{
+    width:min(380px,100%);
+    background:#0b140d;
+    border:1px solid #3a513e;
+    padding:25px;
+    border-radius:8px;
+    text-align:center;
+}
+
+.access input{
+    width:100%;
+    text-align:center;
+    letter-spacing:6px;
+    margin:12px 0 8px;
+}
+
+.access button{
+    width:100%;
+    padding:11px;
+    background:#16301e;
+    color:var(--green);
+    border:1px solid #365a3f;
+    border-radius:5px;
+}
+
+.error{
+    color:var(--red);
+    min-height:16px;
+    font-size:11px;
+}
+
+footer{
+    border-top:1px solid var(--line);
+    color:#59675d;
+    text-align:center;
+    padding:25px;
+    font-size:10px;
+}
+
+@media(max-width:850px){
+    .cases{grid-template-columns:1fr 1fr}
+    .folder-grid{grid-template-columns:1fr 1fr}
+    .stats{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:600px){
+    .cases{grid-template-columns:1fr}
+    .analytics{grid-template-columns:1fr}
+    .docs{grid-template-columns:1fr}
+    .folder-grid{grid-template-columns:1fr 1fr}
+    .controls{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">CID <span>// SECRET DATABASE</span></div>
+    <button onclick="openAccess()">🔒 SECRET ACCESS</button>
+</header>
+
+<section class="hero">
+    <div class="label">CENTRAL INVESTIGATION DIVISION</div>
+    <h1>CASE<br>DATABASE</h1>
+    <p>
+        Внутренняя база расследований CID.
+        Материалы ниже относятся к вымышленной игровой вселенной.
+    </p>
+</section>
+
+<section class="stats">
+    <div class="stat">
+        <b id="total">30</b>
+        <small>ДЕЛ В БАЗЕ</small>
+    </div>
+    <div class="stat">
+        <b id="open">0</b>
+        <small>АКТИВНЫХ</small>
+    </div>
+    <div class="stat">
+        <b id="classified">0</b>
+        <small>СЕКРЕТНЫХ</small>
+    </div>
+    <div class="stat">
+        <b>LEVEL 5</b>
+        <small>МАКС. ДОПУСК</small>
+    </div>
+</section>
+
+<main class="container">
+
+    <div class="section-title">
+        <div class="label">INVESTIGATION FILES</div>
+        <h2>Дела подозреваемых</h2>
+    </div>
+
+    <div class="controls">
+        <input id="search"
+               placeholder="Поиск: имя, номер, код, организация...">
+
+        <select id="filter">
+            <option value="ALL">Все статусы</option>
+            <option value="OPEN">Открытые</option>
+            <option value="CLOSED">Закрытые</option>
+            <option value="CLASSIFIED">Секретные</option>
+        </select>
+    </div>
+
+    <div class="cases" id="cases"></div>
+    <div class="empty" id="empty">ПО ДАННЫМ ПАРАМЕТРАМ ДЕЛ НЕ НАЙДЕНО</div>
+
+    <section class="secret-panel">
+        <div class="label">RESTRICTED AREA</div>
+        <h2>СЕКРЕТНЫЙ АРХИВ CID</h2>
+        <p>
+            Папки, внутренние документы, операции и материалы
+            уровня допуска LEVEL 5.
+        </p>
+        <button class="secret-btn" onclick="openAccess()">
+            ОТКРЫТЬ СЕКРЕТНЫЙ АРХИВ
+        </button>
+    </section>
+
+</main>
+
+<footer>
+    CID INTERNAL SYSTEM // FICTIONAL GAME DATABASE // ACCESS MONITORED
+</footer>
+
+
+<!-- CASE WINDOW -->
+
+<div class="modal" id="caseModal">
+<div class="window">
+
+    <div class="window-head">
+        <b id="caseTitle">CASE-001</b>
+        <button class="close" onclick="closeCase()">×</button>
+    </div>
+
+    <div class="window-body">
+
+        <div class="subject">
+            <img id="subjectPhoto">
+            <div>
+                <div class="label" id="subjectCode"></div>
+                <h2 id="subjectName"></h2>
+                <p id="subjectDescription"></p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="tab('overview',this)">ОБЗОР</button>
+            <button class="tab" onclick="tab('analytics',this)">АНАЛИТИКА</button>
+            <button class="tab" onclick="tab('evidence',this)">УЛИКИ</button>
+            <button class="tab" onclick="tab('timeline',this)">ХРОНОЛОГИЯ</button>
+        </div>
+
+        <div class="tab-page active" id="overview">
+            <div class="case-data" id="overviewData"></div>
+        </div>
+
+        <div class="tab-page" id="analytics">
+            <div class="analytics">
+                <div class="metric">
+                    <small>УРОВЕНЬ УГРОЗЫ</small>
+                    <b id="threat"></b>
+                    <div class="bar"><i id="threatBar"></i></div>
+                </div>
+                <div class="metric">
+                    <small>УВЕРЕННОСТЬ</small>
+                    <b id="confidence"></b>
+                    <div class="bar"><i id="confidenceBar"></i></div>
+                </div>
+                <div class="metric">
+                    <small>ПРОГРЕСС</small>
+                    <b id="progress"></b>
+                    <div class="bar"><i id="progressBar"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-page" id="evidence">
+            <div class="list" id="evidenceList"></div>
+        </div>
+
+        <div class="tab-page" id="timeline">
+            <div class="timeline" id="timelineList"></div>
+        </div>
+
+    </div>
+</div>
+</div>
+
+
+<!-- ACCESS -->
+
+<div class="modal" id="accessModal">
+    <div class="access">
+        <div class="label">LEVEL 5 ACCESS</div>
+        <h2>СЕКРЕТНЫЙ КОД</h2>
+        <p style="color:var(--muted)">
+            Введите шестизначный код допуска.
+        </p>
+
+        <input id="accessCode"
+               type="password"
+               maxlength="6"
+               placeholder="••••••">
+
+        <button onclick="checkAccess()">ПРОВЕРИТЬ</button>
+
+        <div class="error" id="accessError"></div>
+
+        <br>
+        <button style="background:none;border:0;color:#66746b"
+                onclick="closeAccess()">
+            ОТМЕНА
+        </button>
+    </div>
+</div>
+
+
+<!-- SECRET ARCHIVE -->
+
+<div class="modal" id="archiveModal">
+
+<div class="archive">
+
+    <div class="archive-head">
+        <div>
+            <div class="label">ACCESS GRANTED</div>
+            <b>CID // LEVEL 5 ARCHIVE</b>
+        </div>
+
+        <button class="close" onclick="closeArchive()">×</button>
+    </div>
+
+    <div class="archive-body">
+
+        <div class="archive-warning">
+            ⚠ CLASSIFIED SYSTEM // ALL ACTIONS ARE LOGGED
+        </div>
+
+        <h3>СЕКТОРЫ АРХИВА</h3>
+
+        <div class="folder-grid">
+
+            <button class="folder" onclick="openFolder('operations')">
+                <div class="folder-icon">📁</div>
+                ОПЕРАЦИИ
+                <small>12 документов</small>
+            </button>
+
+            <button class="folder" onclick="openFolder('documents')">
+                <div class="folder-icon">📁</div>
+                ДОКУМЕНТЫ
+                <small>27 документов</small>
+            </button>
+
+            <button class="folder" onclick="openFolder('classified')">
+                <div class="folder-icon">🔐</div>
+                SECRET
+                <small>8 файлов</small>
+            </button>
+
+            <button class="folder" onclick="openFolder('projects')">
+                <div class="folder-icon">📁</div>
+                ПРОЕКТЫ
+                <small>6 проектов</small>
+            </button>
+
+            <button class="folder" onclick="openFolder('radio')">
+                <div class="folder-icon">📡</div>
+                РАДИОПЕРЕХВАТЫ
+                <small>19 записей</small>
+            </button>
+
+            <button class="folder" onclick="openFolder('evidence')">
+                <div class="folder-icon">🗃</div>
+                УЛИКИ
+                <small>43 объекта</small>
+            </button>
+
+            <button class="folder" onclick="openFolder('agents')">
+                <div class="folder-icon">👤</div>
+                АГЕНТЫ
+                <small>CLASSIFIED</small>
+            </button>
+
+            <button class="folder" onclick="openFolder('blackorbit')">
+                <div class="folder-icon">⬛</div>
+                BLACK ORBIT
+                <small>LEVEL 5</small>
+            </button>
+
+        </div>
+
+        <div class="archive-view" id="archiveView">
+            <h3 id="folderTitle"></h3>
+            <div class="docs" id="documents"></div>
+
+            <div class="document-view" id="documentView">
+                <h3 id="documentTitle"></h3>
+                <p id="documentText"></p>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+
+
+<script>
+
+/* =========================
+   30 FICTIONAL CASES
+========================= */
+
+const cases = [
+
+["001","NIGHTFALL","A-047","OPEN","CRITICAL","SITE-17","UNKNOWN"],
+["002","SILVER FOX","S-219","OPEN","HIGH","ASTANA","FOX NETWORK"],
+["003","BLACK HAWK","K-118","CLOSED","LOW","UNKNOWN","NONE"],
+["004","THE ARCHIVIST","X-904","CLASSIFIED","CRITICAL","REDACTED","UNKNOWN"],
+["005","GREY WOLF","G-221","OPEN","HIGH","ALMATY","WOLF CELL"],
+["006","RED MIRROR","R-031","CLASSIFIED","CRITICAL","REDACTED","MIRROR"],
+["007","NOMAD","N-441","CLOSED","MEDIUM","KARAGANDA","UNKNOWN"],
+["008","CIPHER","C-812","OPEN","HIGH","UNKNOWN","NULL GROUP"],
+["009","ORBIT","O-177","CLASSIFIED","CRITICAL","SITE-03","BLACK ORBIT"],
+["010","FALCON","F-920","CLOSED","LOW","ASTANA","NONE"],
+["011","DARK RIVER","D-514","OPEN","HIGH","PAVLODAR","UNKNOWN"],
+["012","SPECTER","S-440","CLASSIFIED","CRITICAL","REDACTED","UNKNOWN"],
+["013","IRON FOX","I-231","OPEN","MEDIUM","KOKSHETAU","FOX NETWORK"],
+["014","WHITE ROOM","W-091","CLOSED","LOW","UNKNOWN","NONE"],
+["015","ECHO","E-707","OPEN","HIGH","SITE-17","ECHO CELL"],
+["016","RAVEN","R-552","OPEN","MEDIUM","ASTANA","UNKNOWN"],
+["017","ZERO","Z-000","CLASSIFIED","CRITICAL","REDACTED","UNKNOWN"],
+["018","GLASS","G-808","CLOSED","LOW","ALMATY","NONE"],
+["019","RED FOX","R-302","OPEN","HIGH","KARAGANDA","FOX NETWORK"],
+["020","VECTOR","V-611","CLASSIFIED","HIGH","SITE-04","UNKNOWN"],
+["021","MIRROR","M-515","OPEN","CRITICAL","REDACTED","MIRROR"],
+["022","COBRA","C-173","CLOSED","MEDIUM","PAVLODAR","UNKNOWN"],
+["023","PHANTOM","P-919","OPEN","HIGH","UNKNOWN","NULL GROUP"],
+["024","NORTH","N-818","CLOSED","LOW","ASTANA","NONE"],
+["025","BLACK SUN","B-404","CLASSIFIED","CRITICAL","REDACTED","BLACK ORBIT"],
+["026","WRAITH","W-611","OPEN","HIGH","SITE-09","UNKNOWN"],
+["027","ECHO-2","E-882","OPEN","MEDIUM","KOKSHETAU","ECHO CELL"],
+["028","LOCKSMITH","L-200","CLOSED","LOW","UNKNOWN","NONE"],
+["029","OMEGA","O-999","CLASSIFIED","CRITICAL","SITE-17","UNKNOWN"],
+["030","GREEN FOX","G-001","OPEN","HIGH","REDACTED","FOX NETWORK"]
+
+].map((x,i)=>({
+
+id:x[0],
+name:x[1],
+code:x[2],
+status:x[3],
+threat:x[4],
+location:x[5],
+org:x[6],
+
+photo:`https://i.pravatar.cc/300?img=${(i%70)+1}`,
+
+description:
+`Вымышленное дело CID №${x[0]}. Объект ${x[1]} связан с расследованием секретных операций. Материалы требуют дальнейшего анализа. Прямые выводы должны делаться только после проверки всех доступных материалов.`,
+
+confidence:45+(i*7)%50,
+progress:25+(i*11)%75,
+
+evidence:[
+["Оперативный отчёт","VERIFIED"],
+["Фрагмент переписки","ANALYZED"],
+["Фото с камеры","STORED"],
+["Секретный файл","CLASSIFIED"]
+],
+
+timeline:[
+["2026-01-12","Создано первоначальное дело."],
+["2026-03-18","Получен новый материал расследования."],
+["2026-05-27","Проведён аналитический пересмотр."],
+["2026-08-09","Статус обновлён системой CID."]
+]
+
+}));
+
+
+/* =========================
+   CASE DATABASE
+========================= */
+
+const casesBox=document.getElementById("cases");
+const search=document.getElementById("search");
+const filter=document.getElementById("filter");
+
+function renderCases(){
+
+    const q=search.value.toLowerCase();
+    const f=filter.value;
+
+    const result=cases.filter(c=>{
+
+        const text=
+            c.id+" "+
+            c.name+" "+
+            c.code+" "+
+            c.org+" "+
+            c.location+" "+
+            c.status;
+
+        return text.toLowerCase().includes(q)
+            && (f==="ALL" || c.status===f);
+    });
+
+    casesBox.innerHTML="";
+
+    result.forEach(c=>{
+
+        casesBox.innerHTML+=`
+
+        <article class="case">
+
+            <div class="case-head">
+                <span class="case-id">CASE-${c.id}</span>
+                <span class="status ${c.status}">${c.status}</span>
+            </div>
+
+            <div class="label">${c.code}</div>
+            <h3>${c.name}</h3>
+
+            <div class="case-data">
+
+                <div class="data">
+                    <small>УГРОЗА</small>
+                    <b>${c.threat}</b>
+                </div>
+
+                <div class="data">
+                    <small>ЛОКАЦИЯ</small>
+                    <b>${c.location}</b>
+                </div>
+
+                <div class="data">
+                    <small>ОРГАНИЗАЦИЯ</small>
+                    <b>${c.org}</b>
+                </div>
+
+                <div class="data">
+                    <small>ПРОГРЕСС</small>
+                    <b>${c.progress}%</b>
+                </div>
+
+            </div>
+
+            <button class="open-btn"
+                    onclick="openCase('${c.id}')">
+                ОТКРЫТЬ ДЕЛО →
+            </button>
+
+        </article>`;
+    });
+
+    document.getElementById("empty").style.display=
+        result.length?"none":"block";
+}
+
+search.oninput=renderCases;
+filter.onchange=renderCases;
+
+
+/* =========================
+   CASE WINDOW
+========================= */
+
+function openCase(id){
+
+    const c=cases.find(x=>x.id===id);
+
+    document.getElementById("caseTitle").textContent=
+        "CASE-"+c.id+" // "+c.status;
+
+    document.getElementById("subjectCode").textContent=
+        "SUBJECT // "+c.code;
+
+    document.getElementById("subjectName").textContent=c.name;
+
+    document.getElementById("subjectDescription").textContent=
+        c.description;
+
+    document.getElementById("subjectPhoto").src=c.photo;
+
+    document.getElementById("overviewData").innerHTML=`
+
+        <div class="data">
+            <small>СТАТУС</small>
+            <b>${c.status}</b>
+        </div>
+
+        <div class="data">
+            <small>УРОВЕНЬ УГРОЗЫ</small>
+            <b>${c.threat}</b>
+        </div>
+
+        <div class="data">
+            <small>ОРГАНИЗАЦИЯ</small>
+            <b>${c.org}</b>
+        </div>
+
+        <div class="data">
+            <small>ПОСЛЕДНЯЯ ТОЧКА</small>
+            <b>${c.location}</b>
+        </div>
+
+    `;
+
+    document.getElementById("threat").textContent=c.threat;
+    document.getElementById("confidence").textContent=c.confidence+"%";
+    document.getElementById("progress").textContent=c.progress+"%";
+
+    const threatValue={
+        LOW:25,
+        MEDIUM:50,
+        HIGH:75,
+        CRITICAL:100
+    }[c.threat];
+
+    document.getElementById("threatBar").style.width=
+        threatValue+"%";
+
+    document.getElementById("confidenceBar").style.width=
+        c.confidence+"%";
+
+    document.getElementById("progressBar").style.width=
+        c.progress+"%";
+
+    document.getElementById("evidenceList").innerHTML=
+        c.evidence.map(x=>`
+            <div class="list-item">
+                <span>${x[0]}</span>
+                <b>${x[1]}</b>
+            </div>
+        `).join("");
+
+    document.getElementById("timelineList").innerHTML=
+        c.timeline.map(x=>`
+            <div class="event">
+                <time>${x[0]}</time>
+                <p>${x[1]}</p>
+            </div>
+        `).join("");
+
+    resetTabs();
+
+    document.getElementById("caseModal").classList.add("show");
+}
+
+function closeCase(){
+    document.getElementById("caseModal").classList.remove("show");
+}
+
+function resetTabs(){
+
+    document.querySelectorAll(".tab")
+        .forEach(x=>x.classList.remove("active"));
+
+    document.querySelectorAll(".tab-page")
+        .forEach(x=>x.classList.remove("active"));
+
+    document.querySelector(".tab").classList.add("active");
+    document.getElementById("overview").classList.add("active");
+}
+
+function tab(id,button){
+
+    document.querySelectorAll(".tab")
+        .forEach(x=>x.classList.remove("active"));
+
+    document.querySelectorAll(".tab-page")
+        .forEach(x=>x.classList.remove("active"));
+
+    button.classList.add("active");
+    document.getElementById(id).classList.add("active");
+}
+
+
+/* =========================
+   SECRET ACCESS
+========================= */
+
+function openAccess(){
+    document.getElementById("accessModal").classList.add("show");
+    setTimeout(()=>{
+        document.getElementById("accessCode").focus();
+    },100);
+}
+
+function closeAccess(){
+    document.getElementById("accessModal").classList.remove("show");
+}
+
+document.getElementById("accessCode").addEventListener(
+    "keydown",
+    e=>{
+        if(e.key==="Enter")checkAccess();
+    }
+);
+
+function checkAccess(){
+
+    const code=document.getElementById("accessCode").value;
+    const error=document.getElementById("accessError");
+
+    if(code==="523393"){
+
+        localStorage.setItem("CID_ACCESS","GRANTED");
+
+        closeAccess();
+
+        document.getElementById("archiveModal")
+            .classList.add("show");
+
+        document.getElementById("accessCode").value="";
+        error.textContent="";
+
+    }else{
+
+        error.textContent=
+            "ACCESS DENIED // НЕВЕРНЫЙ КОД";
+
+        document.getElementById("accessCode").value="";
+    }
+}
+
+function closeArchive(){
+    document.getElementById("archiveModal")
+        .classList.remove("show");
+}
+
+
+/* =========================
+   SECRET ARCHIVE
+========================= */
+
+const archiveData={
+
+operations:[
+["OP-001","GREEN FOX","Оперативный файл"],
+["OP-002","ECHO","Оперативный файл"],
+["OP-003","SITE-17","Наблюдение"],
+["OP-004","MIRROR","Спецоперация"]
+],
+
+documents:[
+["DOC-101","Внутренний протокол CID","Документ"],
+["DOC-204","Отчёт аналитического отдела","Документ"],
+["DOC-311","Карта объектов","Карта"],
+["DOC-402","Список наблюдения","Документ"]
+],
+
+classified:[
+["SEC-001","BLACK ORBIT","LEVEL 5"],
+["SEC-002","MIRROR PROTOCOL","LEVEL 5"],
+["SEC-003","UNKNOWN SIGNAL","LEVEL 5"],
+["SEC-004","PROJECT ZERO","LEVEL 5"]
+],
+
+projects:[
+["PRJ-17","SITE-17","Проект"],
+["PRJ-22","GREEN FOX","Проект"],
+["PRJ-31","MIRROR","Проект"],
+["PRJ-44","BLACK ORBIT","Проект"]
+],
+
+radio:[
+["RAD-01","UNKNOWN-447","Перехват"],
+["RAD-02","ECHO-12","Перехват"],
+["RAD-03","SIGNAL-09","Перехват"],
+["RAD-04","BLACK CHANNEL","Перехват"]
+],
+
+evidence:[
+["EV-100","USB DEVICE","Улика"],
+["EV-114","PHOTO-17","Фотография"],
+["EV-220","AUDIO-09","Аудиозапись"],
+["EV-301","DOCUMENT-X","Документ"]
+],
+
+agents:[
+["A-047","NIGHTFALL","Оперативный агент"],
+["A-019","GHOST","Оперативный агент"],
+["A-031","VECTOR","Аналитик"],
+["A-088","RAVEN","Оперативный агент"]
+],
+
+blackorbit:[
+["BO-001","BLACK ORBIT // CORE","TOP SECRET"],
+["BO-002","BLACK ORBIT // MIRROR","TOP SECRET"],
+["BO-003","BLACK ORBIT // SITE-17","TOP SECRET"],
+["BO-004","BLACK ORBIT // FINAL","TOP SECRET"]
+]
+
+};
+
+const folderNames={
+operations:"📁 ОПЕРАЦИИ",
+documents:"📁 ДОКУМЕНТЫ",
+classified:"🔐 SECRET",
+projects:"📁 ПРОЕКТЫ",
+radio:"📡 РАДИОПЕРЕХВАТЫ",
+evidence:"🗃 УЛИКИ",
+agents:"👤 АГЕНТЫ",
+blackorbit:"⬛ BLACK ORBIT"
+};
+
+function openFolder(folder){
+
+    const data=archiveData[folder];
+
+    document.getElementById("archiveView")
+        .classList.add("show");
+
+    document.getElementById("folderTitle")
+        .textContent=folderNames[folder];
+
+    document.getElementById("documents").innerHTML=
+        data.map((d,i)=>`
+
+        <div class="doc">
+
+            <b>${d[0]}</b><br>
+            ${d[1]}<br>
+
+            <small style="color:#68776d">
+                ${d[2]}
+            </small>
+
+            <br>
+
+            <button onclick="openDocument('${folder}',${i})">
+                ОТКРЫТЬ ДОКУМЕНТ →
+            </button>
+
+        </div>
+
+        `).join("");
+
+    document.getElementById("documentView")
+        .classList.remove("show");
+}
+
+
+function openDocument(folder,index){
+
+    const d=archiveData[folder][index];
+
+    document.getElementById("documentView")
+        .classList.add("show");
+
+    document.getElementById("documentTitle")
+        .textContent=d[0]+" // "+d[1];
+
+    document.getElementById("documentText").innerHTML=`
+
+        <b>CLASSIFICATION:</b> ${d[2]}<br>
+        <b>ACCESS:</b> LEVEL 5<br>
+        <b>STATUS:</b> ACTIVE<br><br>
+
+        Документ зарегистрирован внутренней системой CID.
+        Данный материал содержит аналитическую информацию
+        и относится к вымышленной игровой базе данных.
+        <br><br>
+
+        <b>АНАЛИТИЧЕСКАЯ ЗАПИСКА:</b><br>
+        Материал требует дополнительной проверки.
+        Некоторые фрагменты были скрыты согласно уровню допуска.
+        <br><br>
+
+        <span class="redacted">
+        CLASSIFIED INFORMATION
+        </span>
+        <br><br>
+
+        Последнее обновление:
+        2026-${String(index+1).padStart(2,"0")}-17
+    `;
+
+    document.getElementById("documentView")
+        .scrollIntoView({behavior:"smooth"});
+}
+
+
+/* =========================
+   COUNTERS
+========================= */
+
+document.getElementById("total").textContent=cases.length;
+
+document.getElementById("open").textContent=
+    cases.filter(x=>x.status==="OPEN").length;
+
+document.getElementById("classified").textContent=
+    cases.filter(x=>x.status==="CLASSIFIED").length;
+
+
+/* =========================
+   KEYBOARD
+========================= */
+
+document.addEventListener("keydown",e=>{
+
+    if(e.key==="Escape"){
+        closeCase();
+        closeAccess();
+        closeArchive();
+    }
+
+});
+
+
+/* =========================
+   START
+========================= */
+
+renderCases();
+
+</script>
+
+</body>
+</html>
+```
